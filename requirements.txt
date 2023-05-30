@@ -1,0 +1,8 @@
+pygpt4all==1.0.1
+pyllamacpp==1.0.6
+langchain==0.0.149
+unstructured==0.6.5
+pdf2image==1.16.3
+pytesseract==0.3.10
+pypdf==3.8.1
+faiss-cpu==1.7.4
