@@ -102,7 +102,7 @@ print(f"Merging completed")
 print("-----------------------------------")
 print("Saving Merged Database Locally")
 # Save the databasae locally
-db0.save_local("my_faiss_index")
+db0.save_local("my_faiss_index-whole-excel")
 print("-----------------------------------")
 print("merged database saved as my_faiss_index")
 general_end = datetime.datetime.now() #not used now but useful
