@@ -24,7 +24,7 @@ llm = GPT4All(model=gpt4all_path, callback_manager=callback_manager, verbose=Tru
 
 
 # Load our local index vector db
-index = FAISS.load_local("my_faiss_index", embeddings)
+index = FAISS.load_local("my_faiss_index-description-all-rows", embeddings)
 # Hardcoded question
 query = "What was the root cause of the damage to the dust cups?"
 docs = index.similarity_search(query)
