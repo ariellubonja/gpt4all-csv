@@ -6,7 +6,7 @@ from langchain import PromptTemplate, LLMChain
 from langchain.llms import GPT4All
 from langchain.callbacks.base import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from langchain.embeddings import LlamaCppEmbeddings # Alpaca Embeddings
+from langchain.embeddings import HuggingFaceEmbeddings # Alpaca Embeddings
 from langchain.vectorstores.faiss import FAISS # Vector similarity search
 
 
@@ -14,8 +14,15 @@ gpt4all_path = './models/gpt4all-converted.bin'
 llama_path = './models/ggml-model-q4_0.bin' 
 callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
 
-# This prints all the ugly output. Can't be disabled
-embeddings = LlamaCppEmbeddings(model_path=llama_path)
+# create the embedding object
+model_name = "sentence-transformers/all-mpnet-base-v2"
+model_kwargs = {'device': 'cpu'}
+# encode_kwargs = {'normalize_embeddings': False}
+embeddings = HuggingFaceEmbeddings(
+    model_name=model_name,
+    model_kwargs=model_kwargs
+    # encode_kwargs=encode_kwargs
+)
 llm = GPT4All(model=gpt4all_path, callback_manager=callback_manager, verbose=True)
 
 
@@ -23,7 +30,7 @@ llm = GPT4All(model=gpt4all_path, callback_manager=callback_manager, verbose=Tru
 # 1. You create embeddings of your document
 # 2. Search for similarity betw. Query and index using FAISS
 # 3. Give top-k similar vectors (their actual words) as Context to the model
-index = FAISS.load_local("my_faiss_index-description-all-rows", embeddings)
+index = FAISS.load_local("my_faiss_index_randal_papers", embeddings)
 
 
 def run_query(query):

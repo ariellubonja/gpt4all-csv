@@ -13,7 +13,7 @@ from langchain.document_loaders import DirectoryLoader
 # Vector Store Index to create our database about our knowledge
 from langchain.indexes import VectorstoreIndexCreator
 # LLamaCpp embeddings from the Alpaca model
-from langchain.embeddings import LlamaCppEmbeddings
+from langchain.embeddings import HuggingFaceEmbeddings
 # FAISS  library for similaarity search
 from langchain.vectorstores.faiss import FAISS
 import os  #for interaaction with the files
@@ -27,7 +27,15 @@ llama_path = './models/ggml-model-q4_0.bin'
 # Calback manager for handling the calls with  the model
 callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
 # create the embedding object
-embeddings = LlamaCppEmbeddings(model_path=llama_path)
+
+model_name = "sentence-transformers/all-mpnet-base-v2"
+model_kwargs = {'device': 'cpu'}
+# encode_kwargs = {'normalize_embeddings': False}
+embeddings = HuggingFaceEmbeddings(
+    model_name=model_name,
+    model_kwargs=model_kwargs
+    # encode_kwargs=encode_kwargs
+)
 # create the GPT4All llm object
 llm = GPT4All(model=gpt4all_path, callback_manager=callback_manager, verbose=True)
 

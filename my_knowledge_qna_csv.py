@@ -3,7 +3,7 @@ from langchain.callbacks.base import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 # Vector Store Index to create our database about our knowledge
 # LLamaCpp embeddings from the Alpaca model
-from langchain.embeddings import LlamaCppEmbeddings
+from langchain.embeddings import HuggingFaceEmbeddings
 # FAISS  library for similaarity search
 from langchain.vectorstores.faiss import FAISS
 import os  #for interaaction with the files
@@ -18,7 +18,15 @@ llama_path = './models/ggml-model-q4_0.bin'
 callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
 
 # create the embedding object
-embeddings = LlamaCppEmbeddings(model_path=llama_path)
+model_name = "sentence-transformers/all-mpnet-base-v2"
+model_kwargs = {'device': 'cpu'}
+# encode_kwargs = {'normalize_embeddings': False}
+embeddings = HuggingFaceEmbeddings(
+    model_name=model_name,
+    model_kwargs=model_kwargs
+    # encode_kwargs=encode_kwargs
+)
+
 # create the GPT4All llm object
 llm = GPT4All(model=gpt4all_path, callback_manager=callback_manager, verbose=True)
 
@@ -43,22 +51,6 @@ def split_chunks(sources):
     return chunks
 
 
-# def similarity_search(query, index):
-#     # k is the number of similarity searched that matches the query
-#     # default is 4
-#     matched_docs = index.similarity_search(query, k=3) 
-#     sources = []
-#     for doc in matched_docs:
-#         sources.append(
-#             {
-#                 "page_content": doc.page_content,
-#                 "metadata": doc.metadata,
-#             }
-#         )
-
-#     return matched_docs, sources
-
-
 
 # ChatGPT output to modify original code from PDF to CSV
 
@@ -74,12 +66,12 @@ print("generating first vector database and then iterate with .merge_from")
 # Load CSV and read the specific column
 # df = pd.read_csv(os.path.join(csv_folder_path, doc_list[0]))
 
-df = pd.read_csv("data/df_sellout_clean.csv", sep="\t")
+df = pd.read_csv("data/query_export_results.csv", sep=",")
 
 # For failures log CSV
-# docs = df['Description'].tolist()  # Replace 'column_name' with the name of your column
+docs = df['Description'].tolist()  # Replace 'column_name' with the name of your column
 
-docs = df.iloc[:,0].to_list()
+# docs = df.iloc[:,0].to_list()
 chunks = split_chunks(docs)
 db0 = FAISS.from_texts(chunks, embeddings)
 
