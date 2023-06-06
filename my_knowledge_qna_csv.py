@@ -43,20 +43,20 @@ def split_chunks(sources):
     return chunks
 
 
-def similarity_search(query, index):
-    # k is the number of similarity searched that matches the query
-    # default is 4
-    matched_docs = index.similarity_search(query, k=3) 
-    sources = []
-    for doc in matched_docs:
-        sources.append(
-            {
-                "page_content": doc.page_content,
-                "metadata": doc.metadata,
-            }
-        )
+# def similarity_search(query, index):
+#     # k is the number of similarity searched that matches the query
+#     # default is 4
+#     matched_docs = index.similarity_search(query, k=3) 
+#     sources = []
+#     for doc in matched_docs:
+#         sources.append(
+#             {
+#                 "page_content": doc.page_content,
+#                 "metadata": doc.metadata,
+#             }
+#         )
 
-    return matched_docs, sources
+#     return matched_docs, sources
 
 
 
@@ -72,24 +72,32 @@ loop_start = datetime.datetime.now()
 print("generating first vector database and then iterate with .merge_from")
 
 # Load CSV and read the specific column
-df = pd.read_csv(os.path.join(csv_folder_path, doc_list[0]))
-docs = df['Description'].tolist()  # Replace 'column_name' with the name of your column
+# df = pd.read_csv(os.path.join(csv_folder_path, doc_list[0]))
+
+df = pd.read_csv("data/df_sellout_clean.csv", sep="\t")
+
+# For failures log CSV
+# docs = df['Description'].tolist()  # Replace 'column_name' with the name of your column
+
+docs = df.iloc[:,0].to_list()
 chunks = split_chunks(docs)
 db0 = FAISS.from_texts(chunks, embeddings)
 
-print("Main Vector database created. Start iteration and merging...")
-for i in range(1, num_of_docs):
-    print(doc_list[i])
-    print(f"loop position {i}")
 
-    # Load CSV and read the specific column
-    df = pd.read_csv(os.path.join(csv_folder_path, doc_list[i]))
-    docs = df['column_name'].tolist()  # Replace 'column_name' with the name of your column
-    chunks = split_chunks(docs)
-    dbi = FAISS.from_texts(chunks, embeddings)
+# I don't want multiple CSVs at the moment
+# print("Main Vector database created. Start iteration and merging...")
+# for i in range(1, num_of_docs):
+#     print(doc_list[i])
+#     print(f"loop position {i}")
+
+#     # Load CSV and read the specific column
+#     df = pd.read_csv(os.path.join(csv_folder_path, doc_list[i]))
+#     docs = df['column_name'].tolist()  # Replace 'column_name' with the name of your column
+#     chunks = split_chunks(docs)
+#     dbi = FAISS.from_texts(chunks, embeddings)
     
-    print("start merging with db0...")
-    db0.merge_from(dbi)
+#     print("start merging with db0...")
+#     db0.merge_from(dbi)
 
 
 
@@ -102,9 +110,9 @@ print(f"Merging completed")
 print("-----------------------------------")
 print("Saving Merged Database Locally")
 # Save the databasae locally
-db0.save_local("my_faiss_index-whole-excel")
+db0.save_local("index_company_names")
 print("-----------------------------------")
-print("merged database saved as my_faiss_index")
+print("merged database saved")
 general_end = datetime.datetime.now() #not used now but useful
 general_elapsed = general_end - general_start #not used now but useful
 print(f"All indexing completed in {general_elapsed}")
